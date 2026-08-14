@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Black-Scholes 期权定价模型计算器</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="page-header">
+  <h1>Black-Scholes 期权定价模型计算器</h1>
+  <p class="subtitle">Black-Scholes Option Pricing Calculator（含股息收益率 δ，适用于欧式期权）</p>
+</header>
+
+<main>
+  <!-- ===== 输入区 ===== -->
+  <section class="panel" aria-label="参数输入">
+    <h2 class="panel-title">输入参数</h2>
+    <div class="input-grid">
+      <div class="field">
+        <label for="S">标的资产价格 S</label>
+        <div class="input-wrap"><input type="number" id="S" value="3" step="0.01" min="0.0001"></div>
+      </div>
+      <div class="field">
+        <label for="K">执行价格 K</label>
+        <div class="input-wrap"><input type="number" id="K" value="3" step="0.01" min="0.0001"></div>
+      </div>
+      <div class="field">
+        <label for="sigma">波动率 σ</label>
+        <div class="input-wrap"><input type="number" id="sigma" value="20" step="0.5" min="0"><span class="suffix">%</span></div>
+      </div>
+      <div class="field">
+        <label for="T">到期时间 T（年）</label>
+        <div class="input-wrap"><input type="number" id="T" value="0.5" step="0.05" min="0.0001"></div>
+      </div>
+      <div class="field">
+        <label for="r">无风险利率 r</label>
+        <div class="input-wrap"><input type="number" id="r" value="2" step="0.1"><span class="suffix">%</span></div>
+      </div>
+      <div class="field">
+        <label for="delta">股息收益率 δ</label>
+        <div class="input-wrap"><input type="number" id="delta" value="5" step="0.1"><span class="suffix">%</span></div>
+      </div>
+    </div>
+    <div class="input-actions">
+      <button id="resetBtn" type="button">恢复默认值</button>
+      <span id="hint" class="hint"></span>
+    </div>
+  </section>
+
+  <!-- ===== 结果区 ===== -->
+  <section class="panel" aria-label="计算结果">
+    <h2 class="panel-title">计算结果</h2>
+    <div class="d12-bar">
+      <span>d₁ = <strong id="out-d1">—</strong></span>
+      <span>d₂ = <strong id="out-d2">—</strong></span>
+    </div>
+    <div class="card-grid">
+      <div class="card highlight">
+        <div class="card-label">N(d₁) <small>标准正态累积</small></div>
+        <div class="card-value" id="out-Nd1">—</div>
+      </div>
+      <div class="card highlight">
+        <div class="card-label">N(d₂) <small>标准正态累积</small></div>
+        <div class="card-value" id="out-Nd2">—</div>
+      </div>
+      <div class="card highlight">
+        <div class="card-label">N′(d₁) <small>标准正态密度</small></div>
+        <div class="card-value" id="out-pd1">—</div>
+      </div>
+      <div class="card highlight">
+        <div class="card-label">N′(d₂) <small>标准正态密度</small></div>
+        <div class="card-value" id="out-pd2">—</div>
+      </div>
+      <div class="card">
+        <div class="card-label">看涨期权价格 C</div>
+        <div class="card-value" id="out-call">—</div>
+      </div>
+      <div class="card">
+        <div class="card-label">看跌期权价格 P</div>
+        <div class="card-value" id="out-put">—</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Δ 看涨 Delta</div>
+        <div class="card-value" id="out-deltaCall">—</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Δ 看跌 Delta</div>
+        <div class="card-value" id="out-deltaPut">—</div>
+      </div>
+      <div class="card highlight">
+        <div class="card-label">Γ Gamma</div>
+        <div class="card-value" id="out-gamma">—</div>
+      </div>
+      <div class="card highlight">
+        <div class="card-label">Θ Theta（按年）</div>
+        <div class="card-value" id="out-thetaCall">—</div>
+        <div class="card-note">看涨 per day: <span id="out-thetaCallDay">—</span></div>
+      </div>
+      <div class="card highlight">
+        <div class="card-label">Θ Theta（按年）</div>
+        <div class="card-value" id="out-thetaPut">—</div>
+        <div class="card-note">看跌 per day: <span id="out-thetaPutDay">—</span></div>
+      </div>
+      <div class="card highlight">
+        <div class="card-label">V Vega</div>
+        <div class="card-value" id="out-vega">—</div>
+      </div>
+      <div class="card">
+        <div class="card-label">ρ 看涨 Rho</div>
+        <div class="card-value" id="out-rhoCall">—</div>
+      </div>
+      <div class="card">
+        <div class="card-label">ρ 看跌 Rho</div>
+        <div class="card-value" id="out-rhoPut">—</div>
+      </div>
+    </div>
+    <p class="footnote">Gamma 与 Vega 对看涨/看跌期权相同。Theta 同时给出按年与按日（÷365）两种口径。</p>
+  </section>
+
+  <!-- ===== 公式区 ===== -->
+  <section class="panel" aria-label="BS 公式原文">
+    <h2 class="panel-title">Black-Scholes 公式原文</h2>
+    <div class="formula-block">
+      <p class="formula-intro">Black-Scholes（含连续股息收益率 δ）欧式期权定价公式：</p>
+      <div class="formula-row">
+        <span class="formula">
+          <i>C</i> = <i>S</i>·e<sup>−δ<i>T</i></sup>·N(<i>d</i><sub>1</sub>) − <i>K</i>·e<sup>−<i>rT</i></sup>·N(<i>d</i><sub>2</sub>)
+        </span>
+        <span class="formula-desc">欧式看涨期权价格</span>
+      </div>
+      <div class="formula-row">
+        <span class="formula">
+          <i>P</i> = <i>K</i>·e<sup>−<i>rT</i></sup>·N(−<i>d</i><sub>2</sub>) − <i>S</i>·e<sup>−δ<i>T</i></sup>·N(−<i>d</i><sub>1</sub>)
+        </span>
+        <span class="formula-desc">欧式看跌期权价格</span>
+      </div>
+      <p class="formula-intro">其中：</p>
+      <div class="formula-row">
+        <span class="formula">
+          <i>d</i><sub>1</sub> = <span class="frac"><span class="num">ln(<i>S</i>/<i>K</i>) + (<i>r</i> − δ + σ²/2)·<i>T</i></span><span class="den">σ·√<span class="radicand"><i>T</i></span></span></span>
+        </span>
+        <span class="formula-desc">d₁ 计算式</span>
+      </div>
+      <div class="formula-row">
+        <span class="formula">
+          <i>d</i><sub>2</sub> = <i>d</i><sub>1</sub> − σ·√<span class="radicand"><i>T</i></span>
+        </span>
+        <span class="formula-desc">d₂ 计算式</span>
+      </div>
+      <div class="formula-row">
+        <span class="formula">
+          N(<i>x</i>) = <span class="frac"><span class="num">1</span><span class="den">√<span class="radicand">2π</span></span></span> · ∫<sub>−∞</sub><sup><i>x</i></sup> e<sup>−<i>t</i>²/2</sup> d<i>t</i>
+        </span>
+        <span class="formula-desc">N(x)：标准正态分布累积分布函数（CDF），即 Φ(x)</span>
+      </div>
+      <div class="formula-row">
+        <span class="formula">
+          N′(<i>x</i>) = <span class="frac"><span class="num">1</span><span class="den">√<span class="radicand">2π</span></span></span> · e<sup>−<i>x</i>²/2</sup>
+        </span>
+        <span class="formula-desc">N′(x)：标准正态分布概率密度函数（PDF），即 φ(x)</span>
+      </div>
+      <div class="formula-row">
+        <span class="formula">
+          Γ = <span class="frac"><span class="num">e<sup>−δ<i>T</i></sup>·N′(<i>d</i><sub>1</sub>)</span><span class="den"><i>S</i>·σ·√<span class="radicand"><i>T</i></span></span></span>
+          ，&nbsp; Θ<sub>call</sub> = −<span class="frac"><span class="num"><i>S</i>·e<sup>−δ<i>T</i></sup>·N′(<i>d</i><sub>1</sub>)·σ</span><span class="den">2·√<span class="radicand"><i>T</i></span></span></span> − <i>rK</i>·e<sup>−<i>rT</i></sup>·N(<i>d</i><sub>2</sub>) + δ<i>S</i>·e<sup>−δ<i>T</i></sup>·N(<i>d</i><sub>1</sub>)
+          ，&nbsp; V = <i>S</i>·e<sup>−δ<i>T</i></sup>·N′(<i>d</i><sub>1</sub>)·√<span class="radicand"><i>T</i></span>
+        </span>
+        <span class="formula-desc">Gamma / Theta(看涨) / Vega 公式</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="page-footer">
+  <p>Black-Scholes 模型假设：欧式期权、无交易成本、波动率恒定、标的资产价格服从几何布朗运动。</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
