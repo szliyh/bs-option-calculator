@@ -199,6 +199,23 @@ main {
 /* ---- 公式区 ---- */
 .formula-block { font-size: 0.98rem; }
 
+.sub-title {
+  margin: 18px 0 10px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.formula-note {
+  margin: 10px 0 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
 .formula-intro { margin: 10px 0 8px; font-weight: 600; color: #374151; }
 
 .formula-row {
@@ -245,6 +262,64 @@ main {
 .frac .den { padding: 2px 6px 0; }
 
 .radicand { border-top: 1.2px solid #111827; padding: 0 2px; }
+
+/* ---- 输出对照表 ---- */
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.out-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  min-width: 640px;
+}
+
+.out-table th {
+  background: var(--accent-soft);
+  color: #3730a3;
+  text-align: left;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-bottom: 2px solid #e0e7ff;
+  white-space: nowrap;
+}
+
+.out-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.out-table tbody tr:nth-child(even) { background: #fafbff; }
+.out-table tbody tr:hover { background: #f3f4ff; }
+.out-table tbody tr:last-child td { border-bottom: none; }
+
+.out-table .sym {
+  font-family: "Times New Roman", "STIX Two Math", Georgia, serif;
+  font-style: italic;
+  font-size: 1.02rem;
+  white-space: nowrap;
+  color: #111827;
+}
+
+.out-table .formula {
+  font-family: "Times New Roman", "STIX Two Math", Georgia, serif;
+  font-size: 0.98rem;
+  color: #111827;
+  white-space: nowrap;
+}
+
+.out-table .num {
+  font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+  color: var(--ink);
+}
 
 /* ---- 页脚 ---- */
 .page-footer {
