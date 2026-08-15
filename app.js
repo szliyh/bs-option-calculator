@@ -91,12 +91,13 @@
     const $ = (id) => document.getElementById(id);
     const inputs = ["S", "K", "sigma", "T", "r", "delta"].map($);
     const Pct = new Set(["sigma", "r", "delta"]);
-    const defaults = { S: 3, K: 3, sigma: 20, T: 0.5, r: 2, delta: 5 };
+    const defaults = { S: 3, K: 3, sigma: 20, T: 0.5, r: 2, delta: 0 };
 
-    function fmt(x, digits) {
-      if (x === null || x === undefined || !isFinite(x)) return "—";
-      const d = digits == null ? 6 : digits;
-      return Number(x.toFixed(d)).toLocaleString("en-US", { maximumFractionDigits: d });
+    /** 固定小数位格式化（保留末尾 0，如 0.5000；浮点噪声归零） */
+    function fmtFixed(x, digits) {
+      if (typeof x !== "number" || !isFinite(x)) return "—";
+      if (Math.abs(x) < 1e-12) x = 0; // d2 = d1 − σ√T 等浮点差可能产生 ±1e-17 噪声
+      return x.toFixed(digits);
     }
 
     function compute() {
@@ -112,31 +113,31 @@
 
       if (!res) {
         hint.textContent = valid ? "参数需满足 S>0, K>0, σ>0, T>0" : "请输入有效的数字";
-        const ids = ["d1","d2","Nd1","Nd2","pd1","pd2","call","put","deltaCall","deltaPut","gamma","thetaCall","thetaPut","vega","rhoCall","rhoPut"];
-        ids.forEach((i) => { $(`out-${i}`).textContent = "—"; });
-        ["thetaCallDay", "thetaPutDay"].forEach((i) => { $(`out-${i}`).textContent = "—"; });
+        ["d1","d2","Nd1","Nd2","pd1","pd2","call","put","delta","gamma","vega"].forEach((i) => {
+          $(`t-${i}`).textContent = "—";
+        });
+        ["thetaCall","thetaCallYear","thetaPut","thetaPutYear"].forEach((i) => {
+          $(`t-${i}`).textContent = "—";
+        });
         return;
       }
 
       hint.textContent = "";
-      $("out-d1").textContent = fmt(res.d1);
-      $("out-d2").textContent = fmt(res.d2);
-      $("out-Nd1").textContent = fmt(res.Nd1, 6);
-      $("out-Nd2").textContent = fmt(res.Nd2, 6);
-      $("out-pd1").textContent = fmt(res.pd1, 6);
-      $("out-pd2").textContent = fmt(res.pd2, 6);
-      $("out-call").textContent = fmt(res.call);
-      $("out-put").textContent = fmt(res.put);
-      $("out-deltaCall").textContent = fmt(res.deltaCall);
-      $("out-deltaPut").textContent = fmt(res.deltaPut);
-      $("out-gamma").textContent = fmt(res.gamma);
-      $("out-thetaCall").textContent = fmt(res.thetaCall);
-      $("out-thetaPut").textContent = fmt(res.thetaPut);
-      $("out-thetaCallDay").textContent = fmt(res.thetaCall / 365, 6);
-      $("out-thetaPutDay").textContent = fmt(res.thetaPut / 365, 6);
-      $("out-vega").textContent = fmt(res.vega);
-      $("out-rhoCall").textContent = fmt(res.rhoCall);
-      $("out-rhoPut").textContent = fmt(res.rhoPut);
+      $("t-d1").textContent = fmtFixed(res.d1, 4);
+      $("t-d2").textContent = fmtFixed(res.d2, 4);
+      $("t-Nd1").textContent = fmtFixed(res.Nd1, 4);
+      $("t-Nd2").textContent = fmtFixed(res.Nd2, 4);
+      $("t-pd1").textContent = fmtFixed(res.pd1, 4);
+      $("t-pd2").textContent = fmtFixed(res.pd2, 4);
+      $("t-call").textContent = fmtFixed(res.call, 4);
+      $("t-put").textContent = fmtFixed(res.put, 4);
+      $("t-delta").textContent = fmtFixed(res.deltaCall, 4);
+      $("t-gamma").textContent = fmtFixed(res.gamma, 4);
+      $("t-vega").textContent = fmtFixed(res.vega, 4);
+      $("t-thetaCall").textContent = fmtFixed(res.thetaCall / 365, 6);
+      $("t-thetaCallYear").textContent = fmtFixed(res.thetaCall, 4);
+      $("t-thetaPut").textContent = fmtFixed(res.thetaPut / 365, 6);
+      $("t-thetaPutYear").textContent = fmtFixed(res.thetaPut, 4);
     }
 
     inputs.forEach((el) => el.addEventListener("input", compute));
