@@ -115,6 +115,21 @@ ok("默认参数数值与 Python math.erf 高精度交叉验证一致", () => {
   }
 });
 
+ok("δ=0 经典 BS 默认值与你给出的参考表一致", () => {
+  // 默认参数 S=3, K=3, σ=20%, T=0.5, r=2%, δ=0
+  const r0 = blackScholes({ S: 3, K: 3, sigma: 0.2, T: 0.5, r: 0.02, delta: 0 });
+  const ref = {
+    d1: 0.1414, d2: 0.0000,
+    call: 0.1836, put: 0.1538,
+    deltaCall: 0.5562, Nd2: 0.5000,
+    gamma: 0.9310, vega: 0.8379,
+    thetaCall: -0.1973, thetaPut: -0.1379,
+  };
+  for (const [k, v] of Object.entries(ref)) {
+    assert.ok(Math.abs(r0[k] - v) < 5e-4, `${k}: JS=${r0[k].toFixed(6)} 参考=${v}`);
+  }
+});
+
 // ---- 7. 参数单调性/极限合理性 ----
 ok("σ 越大，看涨期权价格越高（时间价值随波动率上升）", () => {
   const lo = blackScholes({ ...def, sigma: 0.1 });
