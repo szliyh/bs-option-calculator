@@ -32,6 +32,7 @@
    * Black-Scholes 定价与希腊字母（含连续股息收益率 δ，欧式期权）
    * @param {object} p - { S, K, sigma, T, r, delta }，均为小数（sigma/r/delta 已除 100）
    * @returns 计算对象；参数非法时返回 null
+   * @note T 的单位为「年」（UI 层负责把「天」÷365 转成「年」再传入）
    */
   function blackScholes(p) {
     const S = Number(p.S);
@@ -91,7 +92,7 @@
     const $ = (id) => document.getElementById(id);
     const inputs = ["S", "K", "sigma", "T", "r", "delta"].map($);
     const Pct = new Set(["sigma", "r", "delta"]);
-    const defaults = { S: 3, K: 3, sigma: 20, T: 0.5, r: 2, delta: 0 };
+    const defaults = { S: 3, K: 3, sigma: 20, T: 30, r: 2, delta: 0 }; // T 单位：天
 
     /** 固定小数位格式化（保留末尾 0，如 0.5000；浮点噪声归零） */
     function fmtFixed(x, digits) {
@@ -106,7 +107,7 @@
       for (const id of ["S", "K", "sigma", "T", "r", "delta"]) {
         const v = parseFloat($(id).value);
         if (!isFinite(v)) { valid = false; break; }
-        params[id] = Pct.has(id) ? v / 100 : v;
+        params[id] = Pct.has(id) ? v / 100 : (id === "T" ? v / 365 : v); // T 由「天」换算为「年」
       }
       const hint = $("hint");
       const res = valid ? BS.blackScholes(params) : null;

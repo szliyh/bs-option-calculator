@@ -30,8 +30,8 @@
         <div class="input-wrap"><input type="number" id="sigma" value="20" step="0.5" min="0"><span class="suffix">%</span></div>
       </div>
       <div class="field">
-        <label for="T">到期时间 T（年）</label>
-        <div class="input-wrap"><input type="number" id="T" value="0.5" step="0.05" min="0.0001"></div>
+        <label for="T">到期时间 T（天）</label>
+        <div class="input-wrap"><input type="number" id="T" value="30" step="1" min="1"></div>
       </div>
       <div class="field">
         <label for="r">无风险利率 r</label>
@@ -93,7 +93,7 @@
       <p class="formula-note">以上为经典 Black-Scholes 公式（δ = 0）。若设置 δ ≠ 0，计算将按含连续股息收益率的完整公式进行：d₁ 分子含 −δT 项，价格与希腊字母含 e<sup>−δT</sup> 因子。</p>
     </div>
 
-    <h3 class="sub-title">输出与公式对照表（数值随输入实时更新，下表为默认参数 S=3, K=3, σ=20%, T=0.5年, r=2%, δ=0）</h3>
+    <h3 class="sub-title">输出与公式对照表（数值随输入实时更新，下表为默认参数 S=3, K=3, σ=20%, T=30天, r=2%, δ=0）</h3>
     <div class="table-wrap">
       <table class="out-table">
         <thead>
